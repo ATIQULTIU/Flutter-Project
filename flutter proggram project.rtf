@@ -1,0 +1,352 @@
+{\rtf1\ansi\ansicpg1252\deff0\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\sa200\sl276\slmult1\lang9\f0\fs22 To create a Flutter mobile app that meets your specifications, I'll provide a sample code structure that demonstrates how to implement each of the requested features using Firebase for storing notes, Hook_Riverpod for state management, GoRouter for navigation, and a clean architecture approach.\par
+\par
+### Project Setup\par
+\par
+1. *Add Dependencies:*\par
+\par
+In your pubspec.yaml file, add the following dependencies:\par
+\par
+yaml\par
+dependencies:\par
+  flutter:\par
+    sdk: flutter\par
+  firebase_core: latest_version\par
+  firebase_auth: latest_version\par
+  cloud_firestore: latest_version\par
+  flutter_hooks: latest_version\par
+  hooks_riverpod: latest_version\par
+  go_router: latest_version\par
+  # Add other UI/UX packages as needed\par
+\par
+dev_dependencies:\par
+  flutter_test:\par
+    sdk: flutter\par
+\par
+\par
+Run flutter pub get to install the packages.\par
+\par
+2. *Initialize Firebase:*\par
+\par
+Follow the [Firebase documentation](https://firebase.google.com/docs/flutter/setup) to add Firebase to your Flutter project, including setting up firebase_core and firebase_auth.\par
+\par
+### File Structure\par
+\par
+Use a clean architecture structure:\par
+\par
+\par
+lib/\par
+\u9474?\par
+\u9500?\u9472?\u9472? main.dart\par
+\u9500?\u9472?\u9472? src/\par
+\u9474?   \u9500?\u9472?\u9472? features/\par
+\u9474?   \u9474?   \u9500?\u9472?\u9472? auth/\par
+\u9474?   \u9474?   \u9474?   \u9500?\u9472?\u9472? presentation/\par
+\u9474?   \u9474?   \u9474?   \u9474?   \u9500?\u9472?\u9472? login_page.dart\par
+\u9474?   \u9474?   \u9474?   \u9474?   \u9500?\u9472?\u9472? registration_page.dart\par
+\u9474?   \u9474?   \u9474?   \u9492?\u9472?\u9472? data/\par
+\u9474?   \u9474?   \u9474?       \u9500?\u9472?\u9472? auth_service.dart\par
+\u9474?   \u9474?   \u9500?\u9472?\u9472? notes/\par
+\u9474?   \u9474?   \u9474?   \u9500?\u9472?\u9472? presentation/\par
+\u9474?   \u9474?   \u9474?   \u9474?   \u9500?\u9472?\u9472? home_page.dart\par
+\u9474?   \u9474?   \u9474?   \u9474?   \u9500?\u9472?\u9472? add_note_page.dart\par
+\u9474?   \u9474?   \u9474?   \u9492?\u9472?\u9472? data/\par
+\u9474?   \u9474?   \u9474?       \u9500?\u9472?\u9472? note_service.dart\par
+\u9474?   \u9492?\u9472?\u9472? common/\par
+\u9474?       \u9500?\u9472?\u9472? widgets/\par
+\u9474?       \u9500?\u9472?\u9472? providers/\par
+\u9474?       \u9492?\u9472?\u9472? routers/\par
+\u9474?           \u9492?\u9472?\u9472? app_router.dart\par
+\par
+\par
+### 1. main.dart\par
+\par
+This is the entry point of the app.\par
+\par
+dart\par
+import 'package:flutter/material.dart';\par
+import 'package:firebase_core/firebase_core.dart';\par
+import 'package:hooks_riverpod/hooks_riverpod.dart';\par
+import 'src/common/routers/app_router.dart';\par
+\par
+void main() async \{\par
+  WidgetsFlutterBinding.ensureInitialized();\par
+  await Firebase.initializeApp(); // Initialize Firebase\par
+  runApp(const ProviderScope(child: MyApp()));\par
+\}\par
+\par
+class MyApp extends StatelessWidget \{\par
+  const MyApp(\{Key? key\}) : super(key: key);\par
+\par
+  @override\par
+  Widget build(BuildContext context) \{\par
+    return MaterialApp.router(\par
+      title: 'Notes App',\par
+      routerConfig: appRouter, // Use GoRouter for navigation\par
+    );\par
+  \}\par
+\}\par
+\par
+\par
+### 2. app_router.dart\par
+\par
+This file handles all the navigation using GoRouter.\par
+\par
+dart\par
+import 'package:flutter/material.dart';\par
+import 'package:go_router/go_router.dart';\par
+import '../../features/auth/presentation/login_page.dart';\par
+import '../../features/auth/presentation/registration_page.dart';\par
+import '../../features/notes/presentation/home_page.dart';\par
+import '../../features/notes/presentation/add_note_page.dart';\par
+\par
+final GoRouter appRouter = GoRouter(\par
+  initialLocation: '/login', // Start with Login Screen\par
+  routes: [\par
+    GoRoute(\par
+      path: '/login',\par
+      builder: (context, state) => const LoginPage(),\par
+    ),\par
+    GoRoute(\par
+      path: '/register',\par
+      builder: (context, state) => const RegistrationPage(),\par
+    ),\par
+    GoRoute(\par
+      path: '/home',\par
+      builder: (context, state) => const HomePage(),\par
+    ),\par
+    GoRoute(\par
+      path: '/add-note',\par
+      builder: (context, state) => const AddNotePage(),\par
+    ),\par
+  ],\par
+);\par
+\par
+\par
+### 3. Splash Screen\par
+\par
+You can use the SplashScreen widget from the splashscreen package or create a custom widget.\par
+\par
+dart\par
+import 'package:flutter/material.dart';\par
+\par
+class SplashScreen extends StatelessWidget \{\par
+  @override\par
+  Widget build(BuildContext context) \{\par
+    return Scaffold(\par
+      body: Center(\par
+        child: Text('Welcome to Notes App'),\par
+      ),\par
+    );\par
+  \}\par
+\}\par
+\par
+\par
+### 4. Login Page\par
+\par
+dart\par
+import 'package:flutter/material.dart';\par
+import 'package:hooks_riverpod/hooks_riverpod.dart';\par
+\par
+class LoginPage extends ConsumerWidget \{\par
+  const LoginPage(\{Key? key\}) : super(key: key);\par
+\par
+  @override\par
+  Widget build(BuildContext context, WidgetRef ref) \{\par
+    final emailController = TextEditingController();\par
+    final passwordController = TextEditingController();\par
+\par
+    return Scaffold(\par
+      body: Padding(\par
+        padding: const EdgeInsets.all(16.0),\par
+        child: Column(\par
+          mainAxisAlignment: MainAxisAlignment.center,\par
+          children: [\par
+            TextField(\par
+              controller: emailController,\par
+              decoration: InputDecoration(labelText: 'Email'),\par
+            ),\par
+            TextField(\par
+              controller: passwordController,\par
+              obscureText: true,\par
+              decoration: InputDecoration(labelText: 'Password'),\par
+            ),\par
+            ElevatedButton(\par
+              onPressed: () \{\par
+                // Implement login logic\par
+              \},\par
+              child: const Text('Login'),\par
+            ),\par
+            TextButton(\par
+              onPressed: () \{\par
+                context.push('/register'); // Navigate to Registration Page\par
+              \},\par
+              child: const Text('Register'),\par
+            ),\par
+          ],\par
+        ),\par
+      ),\par
+    );\par
+  \}\par
+\}\par
+\par
+\par
+### 5. Registration Page\par
+\par
+dart\par
+import 'package:flutter/material.dart';\par
+import 'package:hooks_riverpod/hooks_riverpod.dart';\par
+\par
+class RegistrationPage extends ConsumerWidget \{\par
+  const RegistrationPage(\{Key? key\}) : super(key: key);\par
+\par
+  @override\par
+  Widget build(BuildContext context, WidgetRef ref) \{\par
+    final emailController = TextEditingController();\par
+    final passwordController = TextEditingController();\par
+    final nameController = TextEditingController();\par
+\par
+    return Scaffold(\par
+      body: Padding(\par
+        padding: const EdgeInsets.all(16.0),\par
+        child: Column(\par
+          mainAxisAlignment: MainAxisAlignment.center,\par
+          children: [\par
+            TextField(\par
+              controller: nameController,\par
+              decoration: InputDecoration(labelText: 'Name'),\par
+            ),\par
+            TextField(\par
+              controller: emailController,\par
+              decoration: InputDecoration(labelText: 'Email'),\par
+            ),\par
+            TextField(\par
+              controller: passwordController,\par
+              obscureText: true,\par
+              decoration: InputDecoration(labelText: 'Password'),\par
+            ),\par
+            ElevatedButton(\par
+              onPressed: () \{\par
+                // Implement registration logic\par
+              \},\par
+              child: const Text('Register'),\par
+            ),\par
+          ],\par
+        ),\par
+      ),\par
+    );\par
+  \}\par
+\}\par
+\par
+\par
+### 6. Home Page\par
+\par
+dart\par
+import 'package:flutter/material.dart';\par
+import 'package:hooks_riverpod/hooks_riverpod.dart';\par
+\par
+class HomePage extends ConsumerWidget \{\par
+  const HomePage(\{Key? key\}) : super(key: key);\par
+\par
+  @override\par
+  Widget build(BuildContext context, WidgetRef ref) \{\par
+    return Scaffold(\par
+      appBar: AppBar(\par
+        title: const Text('Notes'),\par
+      ),\par
+      body: ListView(\par
+        children: [\par
+          // List of notes fetched from Firebase\par
+        ],\par
+      ),\par
+      floatingActionButton: FloatingActionButton(\par
+        onPressed: () \{\par
+          context.push('/add-note'); // Navigate to Add Notes Page\par
+        \},\par
+        child: const Icon(Icons.add),\par
+      ),\par
+    );\par
+  \}\par
+\}\par
+\par
+\par
+### 7. Add Notes Page\par
+\par
+dart\par
+import 'package:flutter/material.dart';\par
+import 'package:hooks_riverpod/hooks_riverpod.dart';\par
+\par
+class AddNotePage extends ConsumerWidget \{\par
+  const AddNotePage(\{Key? key\}) : super(key: key);\par
+\par
+  @override\par
+  Widget build(BuildContext context, WidgetRef ref) \{\par
+    final titleController = TextEditingController();\par
+    final descriptionController = TextEditingController();\par
+\par
+    return Scaffold(\par
+      appBar: AppBar(\par
+        title: const Text('Add Note'),\par
+      ),\par
+      body: Padding(\par
+        padding: const EdgeInsets.all(16.0),\par
+        child: Column(\par
+          children: [\par
+            TextField(\par
+              controller: titleController,\par
+              decoration: InputDecoration(labelText: 'Title'),\par
+            ),\par
+            TextField(\par
+              controller: descriptionController,\par
+              decoration: InputDecoration(labelText: 'Description'),\par
+            ),\par
+            ElevatedButton(\par
+              onPressed: () \{\par
+                // Implement add note logic\par
+              \},\par
+              child: const Text('Save'),\par
+            ),\par
+          ],\par
+        ),\par
+      ),\par
+    );\par
+  \}\par
+\}\par
+\par
+\par
+### 8. Firebase Services\par
+\par
+Create the Firebase services for authentication and managing notes in the respective data folders under auth and notes. Example for note_service.dart:\par
+\par
+dart\par
+import 'package:cloud_firestore/cloud_firestore.dart';\par
+\par
+class NoteService \{\par
+  final FirebaseFirestore _db = FirebaseFirestore.instance;\par
+\par
+  Future<void> addNote(String title, String description) async \{\par
+    await _db.collection('notes').add(\{'title': title, 'description': description\});\par
+  \}\par
+\par
+  Stream<QuerySnapshot> getNotes() \{\par
+    return _db.collection('notes').snapshots();\par
+  \}\par
+\}\par
+\par
+\par
+### 9. Providers and State Management\par
+\par
+Define providers in providers directory:\par
+\par
+dart\par
+import 'package:hooks_riverpod/hooks_riverpod.dart';\par
+import '../../features/notes/data/note_service.dart';\par
+\par
+final noteServiceProvider = Provider((ref) => NoteService());\par
+\par
+\par
+### Conclusion\par
+\par
+This setup gives you a basic but robust starting point for building a Flutter app with Firebase, Hook_Riverpod, GoRouter, and a clean architecture. You can further enhance the UI, error handling, and other features to make it production-ready.\par
+}
+ 
